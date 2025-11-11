@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: rasberry_api_management
+
+config:
+  rclone:
+    enable: ${rclone_enable:true}
+    pathConfig: ${rclonePathConfig:src/main/resources/rclone.conf}
+    saveTokenInApp: ${saveTokenInApp:false}

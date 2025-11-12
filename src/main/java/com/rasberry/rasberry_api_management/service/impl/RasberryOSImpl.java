@@ -46,6 +46,16 @@ public class RasberryOSImpl implements RcloneOSAction {
             log.info("cmd commands: {}", String.join(" ", processBuilder.command()));
             try {
                 process = processBuilder.start();
+
+
+                try (BufferedReader bufferedReadererro = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                    log.info("bufferedReadererro");
+                    String line;
+                    while ((line = bufferedReadererro.readLine()) != null) {
+                        log.info("readLine()");
+                        log.info(line);
+                    }
+                }
                 log.info("start");
 //                if (Objects.nonNull(rcloneConfigProperties.getNotificationsUrl()) && !rcloneConfigProperties.getNotificationsUrl().isEmpty()) {
                 if (true) {

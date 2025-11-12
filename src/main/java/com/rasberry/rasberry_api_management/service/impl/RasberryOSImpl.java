@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,37 +39,76 @@ public class RasberryOSImpl implements RcloneOSAction {
 
     @Override
     public void backup(String pathFolder, String folderName, String profile) {
-        if (!isProcessBackup.get()) {
-            log.info("Начинаем процесс backup");
-            isProcessBackup.set(true);
-            log.info("Блокируем возможность дополнительных backup: {}", isProcessBackup.get());
+        if (!isProcessBackup.compareAndSet(false, true)) {
+            log.info("В данный момент происходит бэкап");
+            return;
+        }
 
-            ProcessBuilder processBuilder = createProcessBuilder(pathFolder, folderName, profile);
-            Process process = null;
-            log.info("cmd commands: {}", String.join(" ", processBuilder.command()));
-            try {
-                process = processBuilder.start();
-                log.info("start");
-                try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        log.info("readLine()");
-                        String progressRclone = LineHelper.getProgressRclone(line);
-                        log.info("progressRclone");
-//                            sendMessage(rcloneConfigProperties.getNotificationsUrl(), progressRclone);
-                        ApiHelper.sendMessegeTelegram(progressRclone, telegramBotProperties.token());
+        log.info("Начинаем процесс backup; блокировка установлена: {}", isProcessBackup.get());
+        Process process = null;
+
+        try {
+            ProcessBuilder pb = createProcessBuilder(pathFolder, folderName, profile)
+                    .redirectErrorStream(true);
+
+            log.info("cmd: {}", String.join(" ", pb.command()));
+
+            process = pb.start();
+            log.info("Процесс запущен (pid: {})", process.pid());
+
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+
+                String line;
+                long lastSentNanos = 0L;
+                final long MIN_INTERVAL_NANOS = java.util.concurrent.TimeUnit.SECONDS.toNanos(2);
+
+                while ((line = br.readLine()) != null) {
+
+                    String progress = LineHelper.getProgressRclone(line);
+
+                    if (progress != null && !progress.isBlank()) {
+                        long now = System.nanoTime();
+
+                        if (now - lastSentNanos >= MIN_INTERVAL_NANOS) {
+                            ApiHelper.sendMessegeTelegram(progress, telegramBotProperties.token());
+                            lastSentNanos = now;
+                        }
+
+                        log.trace("rclone: {}", progress);
                     }
                 }
-            } catch (IOException e) {
-                log.error("Ошибка при backup", e);
-            } finally {
-                isProcessBackup.set(false);
-                log.info("Разблокировали возможность дополнительных backup: {}", isProcessBackup);
             }
-        } else {
-            log.info("В данный момент происходит бэкап");
+
+            int exit = process.waitFor();
+            if (exit == 0) {
+                log.info("Backup завершился успешно (exitCode={})", exit);
+            } else {
+                log.error("Backup завершился с ошибкой (exitCode={})", exit);
+            }
+
+        } catch (IOException e) {
+            log.error("Ошибка запуска/чтения процесса backup", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Поток прерван во время ожидания завершения backup", e);
+            if (process != null && process.isAlive()) {
+                process.destroy();
+                try {
+                    if (!process.waitFor(3, java.util.concurrent.TimeUnit.SECONDS)) {
+                        process.destroyForcibly();
+                    }
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    process.destroyForcibly();
+                }
+            }
+        } finally {
+            isProcessBackup.set(false);
+            log.info("Разблокировали возможность дополнительных backup: {}", isProcessBackup.get());
         }
     }
+
 
     @Override
     public void backup() {

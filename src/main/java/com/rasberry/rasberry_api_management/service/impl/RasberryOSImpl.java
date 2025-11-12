@@ -73,7 +73,7 @@ public class RasberryOSImpl implements RcloneOSAction {
                             Matcher percentMatcher = percentPattern.matcher(line);
                             Matcher etaMatcher = etaPattern.matcher(line);
 
-                            if (percentMatcher.find() || etaMatcher.find()) {
+                            if (percentMatcher.find()) {
                                 String percent = percentMatcher.find() ? percentMatcher.group(1) : "N/A";
                                 String eta = etaMatcher.find() ? etaMatcher.group(1) : "N/A";
 

@@ -72,7 +72,7 @@ public class RasberryOSImpl implements RcloneOSAction {
                                 String percent = percentMatcher.find() ? percentMatcher.group(1) : "N/A";
                                 String eta = etaMatcher.find() ? etaMatcher.group(1) : "N/A";
 
-                                String progressRclone = format("Производится процесс бекапа программой rclone, процент выполнения программы: '%s', оставшиеся время выполнения: '%s'", percent, eta);
+                                String progressRclone = format("Производится процесс бекапа программой rclone, процент выполнения программы: '%s%%', оставшиеся время выполнения: '%s'", percent, eta);
 
                                 sendMessage(rcloneConfigProperties.getNotificationsUrl(), progressRclone);
                                 ApiHelper.sendMessegeTelegram(progressRclone, telegramBotProperties.token());

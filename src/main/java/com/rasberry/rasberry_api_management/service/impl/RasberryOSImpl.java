@@ -42,7 +42,9 @@ public class RasberryOSImpl implements RcloneOSAction {
             log.info("Блокируем возможность дополнительных backup: {}", isProcessBackup.get());
 
             ProcessBuilder processBuilder = createProcessBuilder(pathFolder, folderName, profile);
+            processBuilder.redirectErrorStream(true);
             Process process = null;
+
 
             try {
                 processBuilder.environment().put("RCLONE_CONFIG", "/home/admin/.config/rclone/rclone.conf");

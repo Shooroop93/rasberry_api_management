@@ -46,7 +46,7 @@ public class RasberryOSImpl implements RcloneOSAction {
             Process process = null;
             log.info("cmd commands: {}", String.join(" ", processBuilder.command()));
             try {
-                processBuilder.environment().put("RCLONE_CONFIG", "/usr/bin/rclone/rclone.conf");
+                processBuilder.environment().put("RCLONE_CONFIG", "/home/admin/.config/rclone/rclone.conf");
 
                 // Добавим -vv для диагностики на время
                 List<String> cmd = new ArrayList<>(processBuilder.command());

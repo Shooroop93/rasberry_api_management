@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,6 +46,16 @@ public class RasberryOSImpl implements RcloneOSAction {
             Process process = null;
             log.info("cmd commands: {}", String.join(" ", processBuilder.command()));
             try {
+                processBuilder.environment().put("RCLONE_CONFIG", "/usr/bin/rclone/rclone.conf");
+
+                // Добавим -vv для диагностики на время
+                List<String> cmd = new ArrayList<>(processBuilder.command());
+                cmd.add("-vv");
+                processBuilder.command(cmd);
+
+                log.info("cmd: {}", String.join(" ", processBuilder.command()));
+
+
                 process = processBuilder.start();
 
 

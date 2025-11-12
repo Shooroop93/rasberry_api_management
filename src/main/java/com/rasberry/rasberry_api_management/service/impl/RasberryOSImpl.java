@@ -50,11 +50,6 @@ public class RasberryOSImpl implements RcloneOSAction {
             try {
                 processBuilder.environment().put("RCLONE_CONFIG", "/home/admin/.config/rclone/rclone.conf");
 
-                // Добавим -vv для диагностики на время
-                List<String> cmd = new ArrayList<>(processBuilder.command());
-                cmd.add("-vv");
-                processBuilder.command(cmd);
-
                 log.info("cmd: {}", String.join(" ", processBuilder.command()));
 
                 process = processBuilder.start();

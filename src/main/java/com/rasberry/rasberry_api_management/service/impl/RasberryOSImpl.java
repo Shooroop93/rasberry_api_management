@@ -74,7 +74,7 @@ public class RasberryOSImpl implements RcloneOSAction {
 
     @Override
     public void backup() {
-        backup(rcloneConfigProperties.getPathBackupFolder(), "test", "test");
+        backup(rcloneConfigProperties.getPathBackupFolder(), "86c7de17-4be0-4759-abcc-c854c00d7c2b", "yandex_disk");
 
 //        List<String> theNamesOfAllFoldersForBackup = getTheNamesOfAllFoldersForBackup();
 //        if (theNamesOfAllFoldersForBackup != null && !theNamesOfAllFoldersForBackup.isEmpty()) {

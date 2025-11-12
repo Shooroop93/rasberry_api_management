@@ -8,7 +8,7 @@ public enum RasberryOSCommand {
     RCLONE("rclone"),
     SYNC("sync"),
     PROGRESS("--progress"),
-    STATS_ONE_LINE("--stats-one-line"),
+    STATS_ONE_LINE("--stats-one-line-date"),
     STATS("--stats"),
     CREATE_EMPTY_SRC_DIRS("--create-empty-src-dirs"),
     CHECKERS("--checkers"),

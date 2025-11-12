@@ -61,6 +61,7 @@ public class RasberryOSImpl implements RcloneOSAction {
                         log.info("bufferedReader");
                         String line;
                         while ((line = bufferedReader.readLine()) != null) {
+                            ApiHelper.sendMessegeTelegram(line, telegramBotProperties.token());
 
                             Pattern percentPattern = Pattern.compile("(\\d+)%");
                             Pattern etaPattern = Pattern.compile("ETA\\s+([0-9hms]+)");

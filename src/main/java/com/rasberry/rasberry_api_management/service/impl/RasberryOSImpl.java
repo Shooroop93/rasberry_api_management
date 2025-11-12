@@ -15,9 +15,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.rasberry.rasberry_api_management.utils.RcloneHelper.createProcessBuilder;
@@ -48,12 +48,12 @@ public class RasberryOSImpl implements RcloneOSAction {
         Process process = null;
 
         try {
-            ProcessBuilder pb = createProcessBuilder(pathFolder, folderName, profile)
+            ProcessBuilder a = createProcessBuilder(pathFolder, folderName, profile)
                     .redirectErrorStream(true);
 
-            log.info("cmd: {}", String.join(" ", pb.command()));
+            log.info("cmd: {}", String.join(" ", a.command()));
 
-            process = pb.start();
+//            process = pb.start();
             log.info("Процесс запущен (pid: {})", process.pid());
 
             try (BufferedReader br = new BufferedReader(
@@ -63,8 +63,23 @@ public class RasberryOSImpl implements RcloneOSAction {
                 long lastSentNanos = 0L;
                 final long MIN_INTERVAL_NANOS = java.util.concurrent.TimeUnit.SECONDS.toNanos(2);
 
-                while ((line = br.readLine()) != null) {
+                //
+                ProcessBuilder pb = createProcessBuilder(pathFolder, folderName, profile)
+                        .redirectErrorStream(true);
+                pb.environment().put("RCLONE_CONFIG", "/etc/rclone/rclone.conf"); // <-- ваш реальный
 
+                List<String> cmd = new ArrayList<>(pb.command());
+                cmd.add("-vv");                    // или --log-level=DEBUG
+                cmd.add("--retries=1");            // чтобы не ждать долго на диагностиках
+// по желанию: структурированные логи
+// cmd.add("--use-json-log");
+                pb.command(cmd);
+
+                StringBuilder output = new StringBuilder(4096);
+                //
+
+                while ((line = br.readLine()) != null) {
+                    output.append(line).append('\n');
                     String progress = LineHelper.getProgressRclone(line);
 
                     if (progress != null && !progress.isBlank()) {
@@ -81,11 +96,11 @@ public class RasberryOSImpl implements RcloneOSAction {
             }
 
             int exit = process.waitFor();
-            if (exit == 0) {
-                log.info("Backup завершился успешно (exitCode={})", exit);
-                log.info(process.info().toString());
-            } else {
-                log.error("Backup завершился с ошибкой (exitCode={})", exit);
+            if (exit != 0) {
+                // выведите первые/последние 2000 символов для дебага
+                String out = output.toString();
+                int n = Math.min(out.length(), 2000);
+                log.error("rclone stderr/stdout (tail):\n{}", out.substring(out.length() - n));
             }
 
         } catch (IOException e) {

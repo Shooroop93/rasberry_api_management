@@ -13,7 +13,7 @@ import static com.rasberry.rasberry_api_management.constans.RasberryOSCommand.TR
 public class RcloneHelper {
 
     public static ProcessBuilder createProcessBuilder(String pathFolder, String folderName, String profile) {
-        return new ProcessBuilder("sudo ",
+        return new ProcessBuilder(
                 RCLONE.getCommand(),
                 SYNC.getCommand(),
                 pathFolder,

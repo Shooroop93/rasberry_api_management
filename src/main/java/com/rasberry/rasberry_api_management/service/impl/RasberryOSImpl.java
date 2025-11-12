@@ -47,11 +47,14 @@ public class RasberryOSImpl implements RcloneOSAction {
             Process process = null;
             try {
                 process = processBuilder.start();
+                log.info("start");
                 if (Objects.nonNull(rcloneConfigProperties.getNotificationsUrl()) && !rcloneConfigProperties.getNotificationsUrl().isEmpty()) {
                     try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                         String line;
                         while ((line = bufferedReader.readLine()) != null) {
+                            log.info("readLine()");
                             String progressRclone = LineHelper.getProgressRclone(line);
+                            log.info("progressRclone");
 //                            sendMessage(rcloneConfigProperties.getNotificationsUrl(), progressRclone);
                             ApiHelper.sendMessegeTelegram(progressRclone, telegramBotProperties.token());
                         }

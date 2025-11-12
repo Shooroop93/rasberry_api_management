@@ -61,11 +61,7 @@ public class RasberryOSImpl implements RcloneOSAction {
                         String line;
                         Map<String, Integer> map = new HashMap<>();
                         while ((line = bufferedReader.readLine()) != null) {
-                            map.put(line, map.get(line) == null ? 0 : map.get(line) + 1);
-
-                            if (map.get(line) <= 1) {
-                                ApiHelper.sendMessegeTelegram(line, telegramBotProperties.token());
-                            }
+                            ApiHelper.sendMessegeTelegram(line, telegramBotProperties.token());
                         }
                     }
                 }

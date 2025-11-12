@@ -44,7 +44,7 @@ public class RasberryOSImpl implements RcloneOSAction {
 
             ProcessBuilder processBuilder = createProcessBuilder(pathFolder, folderName, profile);
             Process process = null;
-            log.info("cmd commands: {}", String.join(" ", processBuilder.command()));
+
             try {
                 processBuilder.environment().put("RCLONE_CONFIG", "/home/admin/.config/rclone/rclone.conf");
 
@@ -55,18 +55,8 @@ public class RasberryOSImpl implements RcloneOSAction {
 
                 log.info("cmd: {}", String.join(" ", processBuilder.command()));
 
-
                 process = processBuilder.start();
 
-
-                try (BufferedReader bufferedReadererro = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-                    log.info("bufferedReadererro");
-                    String line;
-                    while ((line = bufferedReadererro.readLine()) != null) {
-                        log.info("readLine()");
-                        log.info(line);
-                    }
-                }
                 log.info("start");
 //                if (Objects.nonNull(rcloneConfigProperties.getNotificationsUrl()) && !rcloneConfigProperties.getNotificationsUrl().isEmpty()) {
                 if (true) {
@@ -74,9 +64,7 @@ public class RasberryOSImpl implements RcloneOSAction {
                         log.info("bufferedReader");
                         String line;
                         while ((line = bufferedReader.readLine()) != null) {
-                            log.info("readLine()");
                             String progressRclone = LineHelper.getProgressRclone(line);
-                            log.info("progressRclone");
 //                            sendMessage(rcloneConfigProperties.getNotificationsUrl(), progressRclone);
                             ApiHelper.sendMessegeTelegram(progressRclone, telegramBotProperties.token());
                         }

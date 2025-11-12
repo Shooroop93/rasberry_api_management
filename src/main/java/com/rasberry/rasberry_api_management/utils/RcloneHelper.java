@@ -14,7 +14,9 @@ public class RcloneHelper {
     public static ProcessBuilder createProcessBuilder(String pathFolder, String folderName, String profile) {
 
         return new ProcessBuilder(
-                "stdbuf -oL -eL",
+                "stdbuf",
+                "-oL",
+                "-eL",
                 RCLONE.getCommand(),
                 SYNC.getCommand(),
                 pathFolder + folderName,

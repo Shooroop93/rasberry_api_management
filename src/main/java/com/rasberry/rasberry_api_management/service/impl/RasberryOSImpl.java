@@ -13,15 +13,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.rasberry.rasberry_api_management.utils.RcloneHelper.createProcessBuilder;
-import static java.lang.String.format;
 
 @Slf4j
 @Service
@@ -60,23 +57,12 @@ public class RasberryOSImpl implements RcloneOSAction {
                     try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                         log.info("bufferedReader");
                         String line;
+                        Map<String, Integer> map = new HashMap<>();
                         while ((line = bufferedReader.readLine()) != null) {
-                            ApiHelper.sendMessegeTelegram(line, telegramBotProperties.token());
+                            map.put(line, map.get(line) == null ? 0 : map.get(line) + 1);
 
-                            Pattern percentPattern = Pattern.compile("(\\d+)%");
-                            Pattern etaPattern = Pattern.compile("ETA\\s+([0-9hms]+)");
-
-                            Matcher percentMatcher = percentPattern.matcher(line);
-                            Matcher etaMatcher = etaPattern.matcher(line);
-
-                            if (percentMatcher.find()) {
-                                String percent = percentMatcher.find() ? percentMatcher.group(1) : "N/A";
-                                String eta = etaMatcher.find() ? etaMatcher.group(1) : "N/A";
-
-                                String progressRclone = format("Производится процесс бекапа программой rclone, процент выполнения программы: '%s%%', оставшиеся время выполнения: '%s'", percent, eta);
-
-                                sendMessage(rcloneConfigProperties.getNotificationsUrl(), progressRclone);
-                                ApiHelper.sendMessegeTelegram(progressRclone, telegramBotProperties.token());
+                            if (map.get(line) <= 1) {
+                                ApiHelper.sendMessegeTelegram(line, telegramBotProperties.token());
                             }
                         }
                     }

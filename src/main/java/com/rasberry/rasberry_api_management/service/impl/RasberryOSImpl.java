@@ -83,6 +83,7 @@ public class RasberryOSImpl implements RcloneOSAction {
             int exit = process.waitFor();
             if (exit == 0) {
                 log.info("Backup завершился успешно (exitCode={})", exit);
+                log.info(process.info().toString());
             } else {
                 log.error("Backup завершился с ошибкой (exitCode={})", exit);
             }

@@ -61,7 +61,7 @@ public class RasberryOSImpl implements RcloneOSAction {
                     }
                 }
             } catch (IOException e) {
-                log.error("Ошибка при backup");
+                log.error("Ошибка при backup", e);
             } finally {
                 isProcessBackup.set(false);
                 log.info("Разблокировали возможность дополнительных backup: {}", isProcessBackup);

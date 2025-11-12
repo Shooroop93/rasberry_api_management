@@ -13,3 +13,4 @@ config:
     pathConfig: ${rclonePathConfig:src/main/resources/rclone.conf}
     pathBackupFolder: ${pathBackupFolder:/home/admin/immich-app/library/library/}
     saveTokenInApp: ${saveTokenInApp:false}
+    notificationsUrl: ${notificationsUrl:localhost:8080/api/test}

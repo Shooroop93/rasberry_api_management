@@ -13,4 +13,5 @@ public class RcloneConfigProperties {
     private String pathConfig;
     private String pathBackupFolder;
     private boolean saveTokenInApp;
+    private String notificationsUrl;
 }

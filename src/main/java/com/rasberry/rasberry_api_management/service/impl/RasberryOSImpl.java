@@ -14,8 +14,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,92 +37,39 @@ public class RasberryOSImpl implements RcloneOSAction {
 
     @Override
     public void backup(String pathFolder, String folderName, String profile) {
-        if (!isProcessBackup.compareAndSet(false, true)) {
-            log.info("В данный момент происходит бэкап");
-            return;
-        }
+        if (isProcessBackup.compareAndSet(false, true)) {
+            log.info("Начинаем процесс backup");
+            log.info("Блокируем возможность дополнительных backup: {}", isProcessBackup.get());
 
-        log.info("Начинаем процесс backup; блокировка установлена: {}", isProcessBackup.get());
-        Process process = null;
-
-        try {
-            ProcessBuilder a = createProcessBuilder(pathFolder, folderName, profile)
-                    .redirectErrorStream(true);
-
-            log.info("cmd: {}", String.join(" ", a.command()));
-
-//            process = pb.start();
-            log.info("Процесс запущен (pid: {})", process.pid());
-
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-
-                String line;
-                long lastSentNanos = 0L;
-                final long MIN_INTERVAL_NANOS = java.util.concurrent.TimeUnit.SECONDS.toNanos(2);
-
-                //
-                ProcessBuilder pb = createProcessBuilder(pathFolder, folderName, profile)
-                        .redirectErrorStream(true);
-                pb.environment().put("RCLONE_CONFIG", "/etc/rclone/rclone.conf"); // <-- ваш реальный
-
-                List<String> cmd = new ArrayList<>(pb.command());
-                cmd.add("-vv");                    // или --log-level=DEBUG
-                cmd.add("--retries=1");            // чтобы не ждать долго на диагностиках
-// по желанию: структурированные логи
-// cmd.add("--use-json-log");
-                pb.command(cmd);
-
-                StringBuilder output = new StringBuilder(4096);
-                //
-
-                while ((line = br.readLine()) != null) {
-                    output.append(line).append('\n');
-                    String progress = LineHelper.getProgressRclone(line);
-
-                    if (progress != null && !progress.isBlank()) {
-                        long now = System.nanoTime();
-
-                        if (now - lastSentNanos >= MIN_INTERVAL_NANOS) {
-                            ApiHelper.sendMessegeTelegram(progress, telegramBotProperties.token());
-                            lastSentNanos = now;
+            ProcessBuilder processBuilder = createProcessBuilder(pathFolder, folderName, profile);
+            Process process = null;
+            log.info("cmd commands: {}", String.join("", processBuilder.command()));
+            try {
+                process = processBuilder.start();
+                log.info("start");
+//                if (Objects.nonNull(rcloneConfigProperties.getNotificationsUrl()) && !rcloneConfigProperties.getNotificationsUrl().isEmpty()) {
+                if (true) {
+                    try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        String line;
+                        while ((line = bufferedReader.readLine()) != null) {
+                            log.info("readLine()");
+                            String progressRclone = LineHelper.getProgressRclone(line);
+                            log.info("progressRclone");
+//                            sendMessage(rcloneConfigProperties.getNotificationsUrl(), progressRclone);
+                            ApiHelper.sendMessegeTelegram(progressRclone, telegramBotProperties.token());
                         }
-
-                        log.trace("rclone: {}", progress);
                     }
                 }
+            } catch (IOException e) {
+                log.error("Ошибка при backup", e);
+            } finally {
+                isProcessBackup.set(false);
+                log.info("Разблокировали возможность дополнительных backup: {}", isProcessBackup);
             }
-
-            int exit = process.waitFor();
-            if (exit != 0) {
-                // выведите первые/последние 2000 символов для дебага
-                String out = output.toString();
-                int n = Math.min(out.length(), 2000);
-                log.error("rclone stderr/stdout (tail):\n{}", out.substring(out.length() - n));
-            }
-
-        } catch (IOException e) {
-            log.error("Ошибка запуска/чтения процесса backup", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.warn("Поток прерван во время ожидания завершения backup", e);
-            if (process != null && process.isAlive()) {
-                process.destroy();
-                try {
-                    if (!process.waitFor(3, java.util.concurrent.TimeUnit.SECONDS)) {
-                        process.destroyForcibly();
-                    }
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    process.destroyForcibly();
-                }
-            }
-        } finally {
-            isProcessBackup.set(false);
-            log.info("Разблокировали возможность дополнительных backup: {}", isProcessBackup.get());
+        } else {
+            log.info("В данный момент происходит бэкап");
         }
     }
-
 
     @Override
     public void backup() {

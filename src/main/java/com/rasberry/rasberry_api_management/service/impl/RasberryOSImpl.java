@@ -70,13 +70,15 @@ public class RasberryOSImpl implements RcloneOSAction {
 
     @Override
     public void backup() {
-        List<String> theNamesOfAllFoldersForBackup = getTheNamesOfAllFoldersForBackup();
-        if (theNamesOfAllFoldersForBackup != null && !theNamesOfAllFoldersForBackup.isEmpty()) {
-            theNamesOfAllFoldersForBackup.forEach(
-                    namefolder -> backup(rcloneConfigProperties.getPathBackupFolder(), namefolder, namefolder));
-        } else {
-            log.error("Отсутствует список папок для дебага");
-        }
+        backup(rcloneConfigProperties.getPathBackupFolder(), "test", "test");
+
+//        List<String> theNamesOfAllFoldersForBackup = getTheNamesOfAllFoldersForBackup();
+//        if (theNamesOfAllFoldersForBackup != null && !theNamesOfAllFoldersForBackup.isEmpty()) {
+//            theNamesOfAllFoldersForBackup.forEach(
+//                    namefolder -> backup(rcloneConfigProperties.getPathBackupFolder(), namefolder, namefolder));
+//        } else {
+//            log.error("Отсутствует список папок для дебага");
+//        }
     }
 
 

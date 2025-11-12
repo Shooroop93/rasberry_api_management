@@ -16,7 +16,7 @@ public class RcloneHelper {
         return new ProcessBuilder(
                 RCLONE.getCommand(),
                 SYNC.getCommand(),
-                pathFolder,
+                pathFolder + folderName,
                 profile + ":" + folderName,
                 PROGRESS.getCommand(),
                 STATS_ONE_LINE.getCommand(),

@@ -1,5 +1,6 @@
 package com.rasberry.rasberry_api_management.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rasberry.rasberry_api_management.properties.RcloneConfigProperties;
 import com.rasberry.rasberry_api_management.properties.TelegramBotProperties;
 import com.rasberry.rasberry_api_management.service.RcloneOSAction;
@@ -62,7 +63,10 @@ public class RasberryOSImpl implements RcloneOSAction {
                         Map<String, Integer> map = new HashMap<>();
                         while ((line = bufferedReader.readLine()) != null) {
                             if (line.contains("Transferred")) {
-                                ApiHelper.sendMessegeTelegram(line, telegramBotProperties.token());
+                                ObjectMapper objectMapper = new ObjectMapper();
+                                Map<String, Object> mapJson = objectMapper.readValue(line, Map.class);
+                                String msg = (String) mapJson.get("msg");
+                                ApiHelper.sendMessegeTelegram(msg, telegramBotProperties.token());
                             }
                         }
                     }

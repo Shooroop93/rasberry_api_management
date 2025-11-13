@@ -66,14 +66,19 @@ public class RasberryOSImpl implements RcloneOSAction {
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 Map<String, Object> mapJson = objectMapper.readValue(line, Map.class);
                                 String msg = (String) mapJson.get("msg");
-                                String[] lines = msg.split("\\R"); // разбить по любому переводу строки
 
-                                for (String line1 : lines) {
-                                    if (line.trim().startsWith("Transferred:")) {
-                                        ApiHelper.sendMessegeTelegram(line1.trim(), telegramBotProperties.token());
+                                String[] linesplit = msg.split("\\R"); // разбить по любому переводу строки
+
+                                String firstTransferred = null;
+
+                                for (String split : linesplit) {
+                                    if (split.trim().startsWith("Transferred:")) {
+                                        firstTransferred = split.trim();
                                         break;
                                     }
                                 }
+
+                                ApiHelper.sendMessegeTelegram(firstTransferred, telegramBotProperties.token());
 
                             }
                         }

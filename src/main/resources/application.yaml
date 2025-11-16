@@ -10,6 +10,7 @@ telegram:
 config:
   rclone:
     enable: ${rcloneEnable}
+    startBackupAtStart: ${startBackupAtStart:false}
     profile: ${rcloneProfile}
     pathBackupFolder: ${pathBackupFolder}
     saveTokenInApp: ${saveTokenInApp}

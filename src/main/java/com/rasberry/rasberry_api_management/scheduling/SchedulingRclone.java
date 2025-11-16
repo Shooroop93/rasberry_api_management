@@ -1,5 +1,6 @@
 package com.rasberry.rasberry_api_management.scheduling;
 
+import com.rasberry.rasberry_api_management.properties.RcloneConfigProperties;
 import com.rasberry.rasberry_api_management.service.impl.RcloneOSActionImpl;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +13,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SchedulingRclone {
 
-    private final RcloneOSActionImpl rasberryOS;
+    private final RcloneOSActionImpl rcloneAction;
+    private final RcloneConfigProperties rcloneConfigProperties;
 
     @PostConstruct
     public void start() {
-        log.info("Запуск backup при старте программы");
-        startBackupRclone();
+        if (rcloneConfigProperties.isStartBackupAtStart()) {
+            log.info("Запуск backup при старте программы");
+            startBackupRclone();
+        }
     }
 
     @Scheduled(cron = "${config.rclone.rcloneCron}")
@@ -25,9 +29,9 @@ public class SchedulingRclone {
         long startTime = System.currentTimeMillis();
         log.info("Запуск backup rclone");
 
-        rasberryOS.backup();
+        rcloneAction.backup();
 
         long endTime = System.currentTimeMillis();
-        log.info("Конец backup rclone. Затрачено время: {} ", ((endTime - startTime) / 1000));
+        log.info("Конец backup rclone. Затрачено время: {} секунд", ((endTime - startTime) / 1000));
     }
 }

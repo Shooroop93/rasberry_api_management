@@ -15,7 +15,8 @@ public enum RcloneOSCommand {
     TRANSFERS("--transfers"),
     LOG_LEVEL("--log-level"),
     USE_JSON_LOG("--use-json-log"),
-    INFO("INFO");
+    INFO("INFO"),
+    DEBUG("DEBUG");
 
     private final String command;
 

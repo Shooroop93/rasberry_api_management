@@ -16,6 +16,7 @@ import java.util.List;
 public class RcloneConfigProperties {
 
     private boolean enable;
+    private boolean startBackupAtStart;
     private List<String> profile;
     private String pathBackupFolder;
     private boolean saveTokenInApp;

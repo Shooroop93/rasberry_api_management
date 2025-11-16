@@ -38,75 +38,77 @@ public class RcloneOSActionImpl implements RcloneOSAction {
 
     @Override
     public void backup(String pathFolder, String folderName, String profile) {
-        if (isProcessBackup.compareAndSet(false, true)) {
-            log.info("Начинаем процесс backup");
-            log.info("Блокируем возможность дополнительных backup: {}", isProcessBackup.get());
+        if (rcloneConfigProperties.isEnable()) {
+            if (isProcessBackup.compareAndSet(false, true)) {
+                log.info("Начинаем процесс backup");
+                log.info("Блокируем возможность дополнительных backup: {}", isProcessBackup.get());
 
-            ProcessBuilder processBuilder = createProcessBuilder(pathFolder,
-                    folderName,
-                    profile,
-                    rcloneConfigProperties.getSettings().getTimeStats(),
-                    rcloneConfigProperties.getSettings().getCheckers(),
-                    rcloneConfigProperties.getSettings().getTransfers());
+                ProcessBuilder processBuilder = createProcessBuilder(pathFolder,
+                        folderName,
+                        profile,
+                        rcloneConfigProperties.getSettings().getTimeStats(),
+                        rcloneConfigProperties.getSettings().getCheckers(),
+                        rcloneConfigProperties.getSettings().getTransfers());
 
-            processBuilder.redirectErrorStream(true);
-            Process process = null;
+                processBuilder.redirectErrorStream(true);
+                Process process = null;
 
-            try {
-                processBuilder.environment().put("RCLONE_CONFIG", rcloneConfigProperties.getPathRcloneConfig());
+                try {
+                    processBuilder.environment().put("RCLONE_CONFIG", rcloneConfigProperties.getPathRcloneConfig());
 
-                log.info("cmd: {}", String.join(" ", processBuilder.command()));
+                    log.info("cmd: {}", String.join(" ", processBuilder.command()));
 
-                process = processBuilder.start();
+                    process = processBuilder.start();
 
-                log.info("start backup");
-                try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    String messageId = null;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        if (line.contains("Transferred")) {
-                            StringBuilder message = new StringBuilder();
-                            message.append(format("Происходит backup для пользователя: %s. По профилю rclone: %s\n", folderName, profile));
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            Map<String, Object> mapJson = objectMapper.readValue(line, Map.class);
-                            String msg = (String) mapJson.get("msg");
+                    log.info("start backup");
+                    try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        String line;
+                        String messageId = null;
+                        while ((line = bufferedReader.readLine()) != null) {
+                            if (line.contains("Transferred")) {
+                                StringBuilder message = new StringBuilder();
+                                message.append(format("Происходит backup для пользователя: %s. По профилю rclone: %s\n", folderName, profile));
+                                ObjectMapper objectMapper = new ObjectMapper();
+                                Map<String, Object> mapJson = objectMapper.readValue(line, Map.class);
+                                String msg = (String) mapJson.get("msg");
 
-                            String[] linesplit = msg.split("\\R");
+                                String[] linesplit = msg.split("\\R");
 
-                            for (String split : linesplit) {
-                                if (split.trim().startsWith("Transferred:")) {
-                                    message.append(split.trim());
-                                    break;
+                                for (String split : linesplit) {
+                                    if (split.trim().startsWith("Transferred:")) {
+                                        message.append(split.trim());
+                                        break;
+                                    }
                                 }
-                            }
 
-                            if (Objects.isNull(messageId)) {
-                                ObjectMapper mapper = new ObjectMapper();
-                                String responseTelegram = apiHelper.sendMessageTelegram(
-                                        message.toString(),
-                                        rcloneConfigProperties.getIdChannelTelegram(),
-                                        telegramBotProperties.token(),
-                                        null);
+                                if (Objects.isNull(messageId)) {
+                                    ObjectMapper mapper = new ObjectMapper();
+                                    String responseTelegram = apiHelper.sendMessageTelegram(
+                                            message.toString(),
+                                            rcloneConfigProperties.getIdChannelTelegram(),
+                                            telegramBotProperties.token(),
+                                            null);
 
-                                Map<String, Object> readValue = mapper.readValue(responseTelegram, Map.class);
-                                Map<String, Object> result = (Map<String, Object>) readValue.get("result");
+                                    Map<String, Object> readValue = mapper.readValue(responseTelegram, Map.class);
+                                    Map<String, Object> result = (Map<String, Object>) readValue.get("result");
 
-                                messageId = String.valueOf(result.get("message_id"));
-                            } else {
-                                apiHelper.sendMessageTelegram(message.toString(), rcloneConfigProperties.getIdChannelTelegram(), telegramBotProperties.token(), messageId);
+                                    messageId = String.valueOf(result.get("message_id"));
+                                } else {
+                                    apiHelper.sendMessageTelegram(message.toString(), rcloneConfigProperties.getIdChannelTelegram(), telegramBotProperties.token(), messageId);
+                                }
                             }
                         }
                     }
-                }
 
-            } catch (IOException e) {
-                log.error("Ошибка при backup", e);
-            } finally {
-                isProcessBackup.set(false);
-                log.info("Разблокировали возможность дополнительных backup: {}", isProcessBackup);
+                } catch (IOException e) {
+                    log.error("Ошибка при backup", e);
+                } finally {
+                    isProcessBackup.set(false);
+                    log.info("Разблокировали возможность дополнительных backup: {}", isProcessBackup);
+                }
+            } else {
+                log.info("В данный момент происходит бэкап");
             }
-        } else {
-            log.info("В данный момент происходит бэкап");
         }
     }
 

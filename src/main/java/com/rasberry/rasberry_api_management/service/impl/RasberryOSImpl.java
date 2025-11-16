@@ -60,7 +60,7 @@ public class RasberryOSImpl implements RcloneOSAction {
                     while ((line = bufferedReader.readLine()) != null) {
                         if (line.contains("Transferred")) {
                             StringBuilder message = new StringBuilder();
-                            message.append(format("Происходит backup для: %s\n", profile));
+                            message.append(format("Происходит backup для пользователя: %s. По профилю rclone: %s\n", folderName, profile));
                             ObjectMapper objectMapper = new ObjectMapper();
                             Map<String, Object> mapJson = objectMapper.readValue(line, Map.class);
                             String msg = (String) mapJson.get("msg");

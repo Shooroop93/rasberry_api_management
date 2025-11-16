@@ -80,8 +80,7 @@ public class RasberryOSImpl implements RcloneOSAction {
                                         message.toString(),
                                         rcloneConfigProperties.getIdChannelTelegram(),
                                         telegramBotProperties.token(),
-                                        null
-                                ).toString();
+                                        null);
 
                                 Map<String, Object> readValue = mapper.readValue(responseTelegram, Map.class);
                                 Map<String, Object> result = (Map<String, Object>) readValue.get("result");

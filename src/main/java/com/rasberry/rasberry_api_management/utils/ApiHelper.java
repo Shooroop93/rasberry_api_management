@@ -16,7 +16,7 @@ public class ApiHelper {
 
     private final WebClient webClient;
 
-    public Mono<String> sendMessageTelegram(String message, String idChannel, String token, String messageId) {
+    public String sendMessageTelegram(String message, String idChannel, String token, String messageId) {
 
         String body;
 
@@ -32,7 +32,8 @@ public class ApiHelper {
                     .header("Content-Type", "application/json")
                     .bodyValue(body)
                     .retrieve()
-                    .bodyToMono(String.class);
+                    .bodyToMono(String.class)
+                    .block();
 
         } else {
             body = format("""
@@ -46,7 +47,8 @@ public class ApiHelper {
                     .header("Content-Type", "application/json")
                     .bodyValue(body)
                     .retrieve()
-                    .bodyToMono(String.class);
+                    .bodyToMono(String.class)
+                    .block();
         }
     }
 }

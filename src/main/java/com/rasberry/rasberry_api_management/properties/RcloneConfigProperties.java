@@ -2,6 +2,7 @@ package com.rasberry.rasberry_api_management.properties;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -10,6 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "config.rclone")
+@NoArgsConstructor
 @AllArgsConstructor
 public class RcloneConfigProperties {
 
@@ -25,7 +27,7 @@ public class RcloneConfigProperties {
 
     @Getter
     @Setter
-    public class Settings {
+    public static class Settings {
         private String timeStats;
         private String checkers;
         private String transfers;

@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: rasberry_api_management
+
+telegram:
+  bot:
+    token: ${telegramToken}
+    username: ${botUserName}
+
+config:
+  rclone:
+    enable: ${rcloneEnable}
+    startBackupAtStart: ${startBackupAtStart:false}
+    profile: ${rcloneProfile}
+    pathBackupFolder: ${pathBackupFolder}
+    saveTokenInApp: ${saveTokenInApp}
+    pathRcloneConfig: ${pathRcloneConfig}
+    rcloneCron: ${rcloneCron}
+    idChannelTelegram: ${idChannel}
+    settings:
+      timeStats: ${timeStats:5s}
+      checkers: ${checkers:8}
+      transfers: ${transfers:4}

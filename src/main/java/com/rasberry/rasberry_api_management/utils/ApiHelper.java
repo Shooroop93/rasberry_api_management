@@ -36,10 +36,10 @@ public class ApiHelper {
 
         }
 
-        return sendMessageTelegram(uri, body);
+        return sendPostMessage(uri, body);
     }
 
-    private String sendMessageTelegram(URI uri, String body) {
+    private String sendPostMessage(URI uri, String body) {
         return webClient.post()
                 .uri(uri)
                 .header("Content-Type", "application/json")

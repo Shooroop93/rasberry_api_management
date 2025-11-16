@@ -42,7 +42,13 @@ public class RcloneOSActionImpl implements RcloneOSAction {
             log.info("Начинаем процесс backup");
             log.info("Блокируем возможность дополнительных backup: {}", isProcessBackup.get());
 
-            ProcessBuilder processBuilder = createProcessBuilder(pathFolder, folderName, profile);
+            ProcessBuilder processBuilder = createProcessBuilder(pathFolder,
+                    folderName,
+                    profile,
+                    rcloneConfigProperties.getSettings().getTimeStats(),
+                    rcloneConfigProperties.getSettings().getCheckers(),
+                    rcloneConfigProperties.getSettings().getTransfers());
+
             processBuilder.redirectErrorStream(true);
             Process process = null;
 

@@ -1,7 +1,6 @@
 package com.rasberry.rasberry_api_management.service.impl;
 
 import com.rasberry.rasberry_api_management.properties.RcloneConfigProperties;
-import com.rasberry.rasberry_api_management.service.Rclone;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.configuration2.INIConfiguration;
@@ -20,7 +19,8 @@ import static java.lang.String.format;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class IniServiceImpl implements Rclone {
+// TODO в планах
+public class IniServiceImpl{
 
     private final RcloneConfigProperties rcloneConfigProperties;
 

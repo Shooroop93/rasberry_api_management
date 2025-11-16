@@ -3,7 +3,7 @@ package com.rasberry.rasberry_api_management.constans;
 import lombok.Getter;
 
 @Getter
-public enum RasberryOSCommand {
+public enum RcloneOSCommand {
 
     RCLONE("rclone"),
     SYNC("sync"),
@@ -14,11 +14,12 @@ public enum RasberryOSCommand {
     CHECKERS("--checkers"),
     TRANSFERS("--transfers"),
     LOG_LEVEL("--log-level"),
-    USE_JSON_LOG("--use-json-log");
+    USE_JSON_LOG("--use-json-log"),
+    INFO("INFO");
 
     private final String command;
 
-    RasberryOSCommand(String command) {
+    RcloneOSCommand(String command) {
         this.command = command;
     }
 }

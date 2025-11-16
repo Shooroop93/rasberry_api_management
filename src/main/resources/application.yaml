@@ -16,3 +16,7 @@ config:
     pathRcloneConfig: ${pathRcloneConfig}
     rcloneCron: ${rcloneCron}
     idChannelTelegram: ${idChannel}
+    settings:
+      timeStats: ${timeStats:5s}
+      checkers: ${checkers:8}
+      transfers: ${transfers:4}

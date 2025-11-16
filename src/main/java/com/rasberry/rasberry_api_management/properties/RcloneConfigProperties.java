@@ -1,5 +1,6 @@
 package com.rasberry.rasberry_api_management.properties;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,6 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "config.rclone")
+@AllArgsConstructor
 public class RcloneConfigProperties {
 
     private boolean enable;
@@ -19,4 +21,13 @@ public class RcloneConfigProperties {
     private String pathRcloneConfig;
     private String rcloneCron;
     private String idChannelTelegram;
+    private Settings settings;
+
+    @Getter
+    @Setter
+    public class Settings {
+        private String timeStats;
+        private String checkers;
+        private String transfers;
+    }
 }

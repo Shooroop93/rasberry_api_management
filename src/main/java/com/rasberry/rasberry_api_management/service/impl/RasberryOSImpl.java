@@ -15,9 +15,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.rasberry.rasberry_api_management.utils.RcloneHelper.createProcessBuilder;
+import static java.lang.String.format;
 
 @Slf4j
 @Service
@@ -27,6 +29,7 @@ public class RasberryOSImpl implements RcloneOSAction {
     private final AtomicBoolean isProcessBackup = new AtomicBoolean();
     private final RcloneConfigProperties rcloneConfigProperties;
     private final TelegramBotProperties telegramBotProperties;
+    private final ApiHelper apiHelper;
 
     @Override
     public List<String> getTheNamesOfAllFoldersForBackup() {
@@ -53,24 +56,40 @@ public class RasberryOSImpl implements RcloneOSAction {
                 log.info("start backup");
                 try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                     String line;
+                    String messageId = null;
                     while ((line = bufferedReader.readLine()) != null) {
                         if (line.contains("Transferred")) {
+                            StringBuilder message = new StringBuilder();
+                            message.append(format("Происходит backup для: %s\n", profile));
                             ObjectMapper objectMapper = new ObjectMapper();
                             Map<String, Object> mapJson = objectMapper.readValue(line, Map.class);
                             String msg = (String) mapJson.get("msg");
 
                             String[] linesplit = msg.split("\\R");
 
-                            String firstTransferred = null;
-
                             for (String split : linesplit) {
                                 if (split.trim().startsWith("Transferred:")) {
-                                    firstTransferred = split.trim();
+                                    message.append(split.trim());
                                     break;
                                 }
                             }
 
-                            ApiHelper.sendMessageTelegram(firstTransferred, rcloneConfigProperties.getIdChannelTelegram(), telegramBotProperties.token());
+                            if (Objects.isNull(messageId)) {
+                                ObjectMapper mapper = new ObjectMapper();
+                                String responseTelegram = apiHelper.sendMessageTelegram(
+                                        message.toString(),
+                                        rcloneConfigProperties.getIdChannelTelegram(),
+                                        telegramBotProperties.token(),
+                                        null
+                                ).toString();
+
+                                Map<String, Object> readValue = mapper.readValue(responseTelegram, Map.class);
+                                Map<String, Object> result = (Map<String, Object>) readValue.get("result");
+
+                                messageId = String.valueOf(result.get("message_id"));
+                            } else {
+                                apiHelper.sendMessageTelegram(message.toString(), rcloneConfigProperties.getIdChannelTelegram(), telegramBotProperties.token(), messageId);
+                            }
                         }
                     }
                 }

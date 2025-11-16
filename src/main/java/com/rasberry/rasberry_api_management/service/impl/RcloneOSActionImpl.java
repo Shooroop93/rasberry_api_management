@@ -24,7 +24,7 @@ import static java.lang.String.format;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RasberryOSImpl implements RcloneOSAction {
+public class RcloneOSActionImpl implements RcloneOSAction {
 
     private final AtomicBoolean isProcessBackup = new AtomicBoolean();
     private final RcloneConfigProperties rcloneConfigProperties;

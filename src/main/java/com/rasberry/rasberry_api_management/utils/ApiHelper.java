@@ -3,7 +3,6 @@ package com.rasberry.rasberry_api_management.utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Objects;
@@ -18,37 +17,35 @@ public class ApiHelper {
 
     public String sendMessageTelegram(String message, String idChannel, String token, String messageId) {
 
-        String body;
+        String body = null;
+        URI uri = null;
 
         if (Objects.isNull(messageId)) {
             body = format("""
                         {"chat_id": "%s", "text": "%s"}
                     """, idChannel, message);
 
-            URI uri = URI.create("https://api.telegram.org/bot" + token + "/sendMessage");
-
-            return webClient.post()
-                    .uri(uri)
-                    .header("Content-Type", "application/json")
-                    .bodyValue(body)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+            uri = URI.create("https://api.telegram.org/bot" + token + "/sendMessage");
 
         } else {
             body = format("""
                         {"chat_id": "%s", "message_id": "%s", "text": "%s"}
                     """, idChannel, messageId, message);
 
-            URI uri = URI.create("https://api.telegram.org/bot" + token + "/editMessageText");
+            uri = URI.create("https://api.telegram.org/bot" + token + "/editMessageText");
 
-            return webClient.post()
-                    .uri(uri)
-                    .header("Content-Type", "application/json")
-                    .bodyValue(body)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
         }
+
+        return sendMessageTelegram(uri, body);
+    }
+
+    private String sendMessageTelegram(URI uri, String body) {
+        return webClient.post()
+                .uri(uri)
+                .header("Content-Type", "application/json")
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 }

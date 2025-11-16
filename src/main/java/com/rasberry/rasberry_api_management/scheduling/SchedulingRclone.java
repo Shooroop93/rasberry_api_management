@@ -1,6 +1,6 @@
 package com.rasberry.rasberry_api_management.scheduling;
 
-import com.rasberry.rasberry_api_management.service.impl.RasberryOSImpl;
+import com.rasberry.rasberry_api_management.service.impl.RcloneOSActionImpl;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SchedulingRclone {
 
-    private final RasberryOSImpl rasberryOS;
+    private final RcloneOSActionImpl rasberryOS;
 
     @PostConstruct
     public void start() {

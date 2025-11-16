@@ -9,7 +9,7 @@ telegram:
 
 config:
   rclone:
-    enable: ${rclone_enable}
+    enable: ${rcloneEnable}
     profile: ${rcloneProfile}
     pathBackupFolder: ${pathBackupFolder}
     saveTokenInApp: ${saveTokenInApp}

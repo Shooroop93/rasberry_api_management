@@ -11,7 +11,7 @@
 
     <groupId>com.rasberry</groupId>
     <artifactId>rasberry_api_management</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>rasberry_api_management</name>
     <description>rasberry_api_management</description>
 

@@ -38,10 +38,10 @@ public class IniServiceImpl implements Rclone {
     }
 
     public Map<String, Map<String, String>> getValueInMap() {
-        Optional<INIConfiguration> iniConfiguration = readFile(rcloneConfigProperties.getPathConfig());
+        Optional<INIConfiguration> iniConfiguration = readFile(rcloneConfigProperties.getPathRcloneConfig());
 
         if (iniConfiguration.isEmpty()) {
-            String errorMessage = format("Ошибка при формирования структуры Map<String, Map<String, String>> из config file: %s", rcloneConfigProperties.getPathConfig());
+            String errorMessage = format("Ошибка при формирования структуры Map<String, Map<String, String>> из config file: %s", rcloneConfigProperties.getPathRcloneConfig());
             log.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }

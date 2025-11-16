@@ -5,14 +5,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import static java.lang.String.format;
+
 public class ApiHelper {
 
-    public static void sendMessegeTelegram(String message, String token) {
+    public static void sendMessageTelegram(String message, String idChannel, String token) {
         try {
-            String body = String.format(
-                    "{\"chat_id\": \"474173326\", \"text\": \"%s\"}",
-                    message.replace("\"", "\\\"")
-            );
+            String body = format("""
+                    {"chat_id": "%s", "text": "%s"}
+                    """, idChannel, message);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.telegram.org/bot" + token + "/sendMessage"))

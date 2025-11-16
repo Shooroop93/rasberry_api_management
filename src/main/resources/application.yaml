@@ -4,13 +4,15 @@ spring:
 
 telegram:
   bot:
-    token: 985889049:AAH1QYj-FdyuGwujovh-wQ-GaxDm8bQ54t4 # TODO для быстрых тестов, не забыть поменять и удалить
-    username: ShooroopovichBot
+    token: ${telegramToken}
+    username: ${botUserName}
 
 config:
   rclone:
-    enable: ${rclone_enable:true}
-    pathConfig: ${rclonePathConfig:src/main/resources/rclone.conf}
-    pathBackupFolder: ${pathBackupFolder:/home/admin/immich-app/library/library/}
-    saveTokenInApp: ${saveTokenInApp:false}
-    notificationsUrl: ${notificationsUrl:localhost:8080/api/test}
+    enable: ${rclone_enable}
+    profile: ${rcloneProfile}
+    pathBackupFolder: ${pathBackupFolder}
+    saveTokenInApp: ${saveTokenInApp}
+    pathRcloneConfig: ${pathRcloneConfig}
+    rcloneCron: ${rcloneCron}
+    idChannelTelegram: ${idChannel}

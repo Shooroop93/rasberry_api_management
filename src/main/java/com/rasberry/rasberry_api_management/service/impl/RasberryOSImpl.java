@@ -9,12 +9,10 @@ import com.rasberry.rasberry_api_management.utils.FileHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,7 +27,6 @@ public class RasberryOSImpl implements RcloneOSAction {
     private final AtomicBoolean isProcessBackup = new AtomicBoolean();
     private final RcloneConfigProperties rcloneConfigProperties;
     private final TelegramBotProperties telegramBotProperties;
-    private final WebClient webClient;
 
     @Override
     public List<String> getTheNamesOfAllFoldersForBackup() {
@@ -46,44 +43,38 @@ public class RasberryOSImpl implements RcloneOSAction {
             processBuilder.redirectErrorStream(true);
             Process process = null;
 
-
             try {
-                processBuilder.environment().put("RCLONE_CONFIG", "/home/admin/.config/rclone/rclone.conf");
+                processBuilder.environment().put("RCLONE_CONFIG", rcloneConfigProperties.getPathRcloneConfig());
 
                 log.info("cmd: {}", String.join(" ", processBuilder.command()));
 
                 process = processBuilder.start();
 
-                log.info("start");
-//                if (Objects.nonNull(rcloneConfigProperties.getNotificationsUrl()) && !rcloneConfigProperties.getNotificationsUrl().isEmpty()) {
-                if (true) {
-                    try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                        log.info("bufferedReader");
-                        String line;
-                        Map<String, Integer> map = new HashMap<>();
-                        while ((line = bufferedReader.readLine()) != null) {
-                            if (line.contains("Transferred")) {
-                                ObjectMapper objectMapper = new ObjectMapper();
-                                Map<String, Object> mapJson = objectMapper.readValue(line, Map.class);
-                                String msg = (String) mapJson.get("msg");
+                log.info("start backup");
+                try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        if (line.contains("Transferred")) {
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            Map<String, Object> mapJson = objectMapper.readValue(line, Map.class);
+                            String msg = (String) mapJson.get("msg");
 
-                                String[] linesplit = msg.split("\\R"); // разбить по любому переводу строки
+                            String[] linesplit = msg.split("\\R");
 
-                                String firstTransferred = null;
+                            String firstTransferred = null;
 
-                                for (String split : linesplit) {
-                                    if (split.trim().startsWith("Transferred:")) {
-                                        firstTransferred = split.trim();
-                                        break;
-                                    }
+                            for (String split : linesplit) {
+                                if (split.trim().startsWith("Transferred:")) {
+                                    firstTransferred = split.trim();
+                                    break;
                                 }
-
-                                ApiHelper.sendMessegeTelegram(firstTransferred, telegramBotProperties.token());
-
                             }
+
+                            ApiHelper.sendMessageTelegram(firstTransferred, rcloneConfigProperties.getIdChannelTelegram(), telegramBotProperties.token());
                         }
                     }
                 }
+
             } catch (IOException e) {
                 log.error("Ошибка при backup", e);
             } finally {
@@ -97,22 +88,18 @@ public class RasberryOSImpl implements RcloneOSAction {
 
     @Override
     public void backup() {
-        backup(rcloneConfigProperties.getPathBackupFolder(), "86c7de17-4be0-4759-abcc-c854c00d7c2b", "yandex_disk");
-
-//        List<String> theNamesOfAllFoldersForBackup = getTheNamesOfAllFoldersForBackup();
-//        if (theNamesOfAllFoldersForBackup != null && !theNamesOfAllFoldersForBackup.isEmpty()) {
-//            theNamesOfAllFoldersForBackup.forEach(
-//                    namefolder -> backup(rcloneConfigProperties.getPathBackupFolder(), namefolder, namefolder));
-//        } else {
-//            log.error("Отсутствует список папок для дебага");
-//        }
-    }
-
-
-    private void sendMessage(String url, String message) {
-        webClient
-                .post()
-                .uri(url)
-                .bodyValue(Map.of("message", message));
+        if (rcloneConfigProperties.isEnable()) {
+            List<String> theNamesOfAllFoldersForBackup = getTheNamesOfAllFoldersForBackup();
+            if (theNamesOfAllFoldersForBackup != null && !theNamesOfAllFoldersForBackup.isEmpty()) {
+                for (String folderName : theNamesOfAllFoldersForBackup) {
+                    rcloneConfigProperties.getProfile().forEach(profile ->
+                            backup(rcloneConfigProperties.getPathBackupFolder(), folderName, profile));
+                }
+            } else {
+                log.error("Отсутствует список папок для backup");
+            }
+        } else {
+            log.warn("В настройках backup для rclone: {}", rcloneConfigProperties.isEnable());
+        }
     }
 }

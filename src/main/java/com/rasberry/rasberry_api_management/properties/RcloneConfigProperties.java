@@ -23,7 +23,7 @@ public class RcloneConfigProperties {
     private String pathRcloneConfig;
     private String rcloneCron;
     private String idChannelTelegram;
-    private Settings settings;
+    private Settings settings = new Settings();
 
     @Getter
     @Setter

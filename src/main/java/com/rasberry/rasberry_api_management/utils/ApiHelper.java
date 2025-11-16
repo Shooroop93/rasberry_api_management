@@ -1,6 +1,7 @@
 package com.rasberry.rasberry_api_management.utils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -11,6 +12,7 @@ import static java.lang.String.format;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ApiHelper {
 
     private final WebClient webClient;
@@ -31,6 +33,8 @@ public class ApiHelper {
             body = format("""
                         {"chat_id": "%s", "message_id": %d, "text": "%s"}
                     """, idChannel, Long.parseLong(messageId), message);
+
+            log.info("Запрос на изменение:\n" + body);
 
             uri = URI.create("https://api.telegram.org/bot" + token + "/editMessageText");
 

@@ -29,8 +29,8 @@ public class ApiHelper {
 
         } else {
             body = format("""
-                        {"chat_id": "%s", "message_id": "%s", "text": "%s"}
-                    """, idChannel, messageId, message);
+                        {"chat_id": "%s", "message_id": %d, "text": "%s"}
+                    """, idChannel, Long.parseLong(messageId), message);
 
             uri = URI.create("https://api.telegram.org/bot" + token + "/editMessageText");
 

@@ -48,6 +48,10 @@ public class ApiHelper {
                     .bodyToMono(String.class)
                     .block();
         } catch (WebClientResponseException e) {
+            if (e.getResponseBodyAsString().contains("message is not modified")) {
+                return "";
+            }
+
             log.error("Telegram error {} {}\n. RequestBody: {}. \nResponseBody: {}",
                     e.getRawStatusCode(),
                     e.getStatusText(),

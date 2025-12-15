@@ -30,6 +30,8 @@ public class RcloneOSActionImpl implements RcloneOSAction {
     private final RcloneConfigProperties rcloneConfigProperties;
     private final TelegramBotProperties telegramBotProperties;
     private final ApiHelper apiHelper;
+    private final ObjectMapper mapper = new ObjectMapper();
+
 
     @Override
     public List<String> getTheNamesOfAllFoldersForBackup() {
@@ -83,7 +85,6 @@ public class RcloneOSActionImpl implements RcloneOSAction {
                                 }
 
                                 if (Objects.isNull(messageId)) {
-                                    ObjectMapper mapper = new ObjectMapper();
                                     String responseTelegram = apiHelper.sendMessageTelegram(
                                             message.toString(),
                                             rcloneConfigProperties.getIdChannelTelegram(),
@@ -101,9 +102,30 @@ public class RcloneOSActionImpl implements RcloneOSAction {
                         }
                     }
 
+                    int exitCode = process.waitFor();
+
+                    if (exitCode == 0) {
+                        apiHelper.sendMessageTelegram(
+                                "Backup завершён успешно для " + folderName,
+                                rcloneConfigProperties.getIdChannelTelegram(),
+                                telegramBotProperties.token(),
+                                null
+                        );
+                    } else {
+                        apiHelper.sendMessageTelegram(
+                                "Backup завершился с ошибкой (exitCode=" + exitCode + ") для " + folderName,
+                                rcloneConfigProperties.getIdChannelTelegram(),
+                                telegramBotProperties.token(),
+                                null
+                        );
+                    }
+
                 } catch (IOException e) {
                     log.error("Ошибка при backup", e);
-                } finally {
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("Backup прерван (Interrupted) для {}", folderName, e);
+                }finally {
                     isProcessBackup.set(false);
                     log.info("Разблокировали возможность дополнительных backup: {}", isProcessBackup);
                 }

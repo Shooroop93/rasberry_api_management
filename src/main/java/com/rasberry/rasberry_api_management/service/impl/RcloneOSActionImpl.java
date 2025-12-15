@@ -102,30 +102,14 @@ public class RcloneOSActionImpl implements RcloneOSAction {
                         }
                     }
 
-                    int exitCode = process.waitFor();
-
-                    if (exitCode == 0) {
-                        apiHelper.sendMessageTelegram(
-                                "Backup завершён успешно для " + folderName,
-                                rcloneConfigProperties.getIdChannelTelegram(),
-                                telegramBotProperties.token(),
-                                null
-                        );
-                    } else {
-                        apiHelper.sendMessageTelegram(
-                                "Backup завершился с ошибкой (exitCode=" + exitCode + ") для " + folderName,
-                                rcloneConfigProperties.getIdChannelTelegram(),
-                                telegramBotProperties.token(),
-                                null
-                        );
-                    }
+                    process.waitFor();
 
                 } catch (IOException e) {
                     log.error("Ошибка при backup", e);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.error("Backup прерван (Interrupted) для {}", folderName, e);
-                }finally {
+                } finally {
                     isProcessBackup.set(false);
                     log.info("Разблокировали возможность дополнительных backup: {}", isProcessBackup);
                 }

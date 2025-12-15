@@ -6,7 +6,7 @@ import static com.rasberry.rasberry_api_management.constans.RcloneOSCommand.INFO
 import static com.rasberry.rasberry_api_management.constans.RcloneOSCommand.LOG_LEVEL;
 import static com.rasberry.rasberry_api_management.constans.RcloneOSCommand.RCLONE;
 import static com.rasberry.rasberry_api_management.constans.RcloneOSCommand.STATS;
-import static com.rasberry.rasberry_api_management.constans.RcloneOSCommand.COPY;
+import static com.rasberry.rasberry_api_management.constans.RcloneOSCommand.SYNC;
 import static com.rasberry.rasberry_api_management.constans.RcloneOSCommand.TRANSFERS;
 import static com.rasberry.rasberry_api_management.constans.RcloneOSCommand.USE_JSON_LOG;
 
@@ -21,7 +21,7 @@ public class RcloneHelper {
 
         return new ProcessBuilder(
                 RCLONE.getCommand(),
-                COPY.getCommand(),
+                SYNC.getCommand(),
                 pathFolder + folderName,
                 profile + ":" + folderName,
                 USE_JSON_LOG.getCommand(),

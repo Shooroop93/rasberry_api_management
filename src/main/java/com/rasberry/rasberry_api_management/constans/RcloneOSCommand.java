@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum RcloneOSCommand {
 
     RCLONE("rclone"),
-    COPY("copy"),
+    SYNC("sync"),
     PROGRESS("--progress"),
     STATS_ONE_LINE("--stats-one-line-date"),
     STATS("--stats"),

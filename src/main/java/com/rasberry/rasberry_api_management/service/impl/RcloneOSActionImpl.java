@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.rasberry.rasberry_api_management.utils.RcloneHelper.createProcessBuilder;
+import static com.rasberry.rasberry_api_management.utils.RcloneHelper.createProcessBuilderCopy;
 import static java.lang.String.format;
 
 @Slf4j
@@ -45,7 +45,7 @@ public class RcloneOSActionImpl implements RcloneOSAction {
                 log.info("Начинаем процесс backup");
                 log.info("Блокируем возможность дополнительных backup: {}", isProcessBackup.get());
 
-                ProcessBuilder processBuilder = createProcessBuilder(pathFolder,
+                ProcessBuilder processBuilder = createProcessBuilderCopy(pathFolder,
                         folderName,
                         profile,
                         rcloneConfigProperties.getSettings().getTimeStats(),

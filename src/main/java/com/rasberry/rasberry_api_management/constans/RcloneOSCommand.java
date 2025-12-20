@@ -7,6 +7,7 @@ public enum RcloneOSCommand {
 
     RCLONE("rclone"),
     SYNC("sync"),
+    COPY ("copy"),
     PROGRESS("--progress"),
     STATS_ONE_LINE("--stats-one-line-date"),
     STATS("--stats"),
